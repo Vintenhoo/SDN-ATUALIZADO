@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SDN</title>
     <link rel="stylesheet" href="stylesCadastro.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <header>
-        <h1>Sistema de Nutrucionistas</h1>
+        <h1>Sistema de Nutricionistas</h1>
         <nav>
-             <ul>
+            <ul>
                 <li><a href="index.html">Home</a></li>
                 <li><a href="cadastroPacientes.html">Cadastro de Pacientes</a></li>
                 <li><a href="#">Cadastro de Receitas</a></li>
@@ -19,48 +20,113 @@
         </nav>
     </header>
     <main>
-        <form action="action">
-            <div>
-                <label for="matricula">Sua Matrícula</label>
-                <input type="text" id="matricula">
-            </div>
-            <div>
-                <label for="nome">Digite seu nome:</label>
-                <input type="text"id="nome">
-            </div>
-            <div>
-                <label for="nascimento">Data de Nascimento</label>
-                <input type="date" id="nascimento">
-            </div>
-            <div>
-                <h4>Seu sexo:</h4>
-                <label>
-                    <input type="checkbox" id="masculino" name="sexo" class="sexo-checkbox"> Masculino
-                </label>
-                <label>
-                    <input type="checkbox" id="feminino" name="sexo" class="sexo-checkbox"> Feminino
-                </label>
-            </div>
-            <div>
-                <label for="endereco">Seu Endereço</label>
-                <input type="text" id="endereco">
-            </div>
-            <div>
-                <label for="telefone">Seu Telefone ou celular</label>
-                <input type="text" id="telefone" name="telefone" oninput="formatPhoneNumber(this)" maxlength="14" placeholder="(00) 00000-0000" required>
-            </div>
-            <div>
-                <label for="e-mail">Seu E-mail</label>
-                <input type="text" id="e-mail" maxlength="14" placeholder="seuemail@gmail.com">
-            </div>
-            <button type="submit">Enviar</button>
+        <div class="container">
+            <h2>Cadastrar paciente</h2>
+            <form id="crudForm" class="crud-form">
+                <div class="form-group">
+                    <label for="name">Nome:</label>
+                    <input type="text" class="form-control" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" class="form-control" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="peso">Peso (kg):</label>
+                    <input type="number" class="form-control" id="peso" required>
+                </div>
+                <div class="form-group">
+                    <label for="altura">Altura (m):</label>
+                    <input type="number" step="0.01" class="form-control" id="altura" required>
+                </div>
+                <div class="form-group">
+                    <label for="sexo">Sexo:</label>
+                    <input type="text" class="form-control" id="sexo" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Adicionar</button>
+            </form>
 
-        </form>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th>Altura</th>
+                        <th>Peso</th>
+                        <th>Sexo</th>
+                        <th>Ações</th>
+                        <th>IMC</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Os dados inseridos serão exibidos aqui -->
+                </tbody>
+            </table>
+        </div>
     </main>
     <footer>
-        <p>&copy; 2024 SDN - Sistema de Nutrucionistas</p>
+        <p>&copy; 2024 SDN - Sistema de Nutricionistas</p>
     </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-    <script src="cadastroClientes.js"></script>
+    <script>
+        // Array para armazenar os dados
+        let listaClientes = [];
+
+        // Função para adicionar um novo item à lista
+        function adicionarItem(name, email, peso, altura, sexo) {
+            const imc = calcularIMC(peso, altura);
+            listaClientes.push({ name, email, peso, altura, sexo, imc });
+            atualizarTabela();
+        }
+
+        // Função para calcular o IMC
+        function calcularIMC(peso, altura) {
+            return (peso / (altura * altura)).toFixed(2);
+        }
+
+        // Função para atualizar a tabela
+        function atualizarTabela() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            listaClientes.forEach(item => {
+                const row = `
+                    <tr>
+                        <td>${item.name}</td>
+                        <td>${item.email}</td>
+                        <td>${item.altura}</td>
+                        <td>${item.peso}</td>
+                        <td>${item.sexo}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="excluirItem('${item.email}')">Excluir</button>
+                        </td>
+                        <td>${item.imc}</td>
+                    </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        // Função para excluir um item da lista
+        function excluirItem(email) {
+            listaClientes = listaClientes.filter(item => item.email !== email);
+            atualizarTabela();
+        }
+
+        // Evento de envio do formulário
+        document.getElementById('crudForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const peso = parseFloat(document.getElementById('peso').value);
+            const altura = parseFloat(document.getElementById('altura').value);
+            const sexo = document.getElementById('sexo').value;
+            adicionarItem(name, email, peso, altura, sexo);
+
+            // Limpar campos do formulário
+            document.getElementById('crudForm').reset();
+        });
+    </script>
 </body>
 </html>
